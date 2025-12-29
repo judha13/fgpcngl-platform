@@ -29,30 +29,30 @@ export interface UpdateEventData extends CreateEventData {
 export const eventsApi = {
   // Get all events
   getEvents: async (): Promise<Event[]> => {
-    const response = await api.get('/api/events');
+    const response = await api.get('/events');
     return response.data.data;
   },
 
   // Get event by ID
   getEvent: async (id: string): Promise<Event> => {
-    const response = await api.get(`/api/events/${id}`);
+    const response = await api.get(`/events/${id}`);
     return response.data.data;
   },
 
   // Create new event
   createEvent: async (eventData: CreateEventData): Promise<Event> => {
-    const response = await api.post('/api/events', eventData);
+    const response = await api.post('/events', eventData);
     return response.data.data;
   },
 
   // Update event
   updateEvent: async (id: string, eventData: UpdateEventData): Promise<Event> => {
-    const response = await api.put(`/api/events/${id}`, eventData);
+    const response = await api.put(`/events/${id}`, eventData);
     return response.data.data;
   },
 
   // Delete event
   deleteEvent: async (id: string): Promise<void> => {
-    await api.delete(`/api/events/${id}`);
+    await api.delete(`/events/${id}`);
   },
 };

@@ -252,113 +252,82 @@ export default function Events() {
         </div>
 
         {/* Events Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i} className="p-5 bg-card border-border">
-                <div className="flex gap-4">
-                  <Skeleton className="w-10 h-10 rounded-lg" />
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <Skeleton className="h-5 w-48" />
-                        <Skeleton className="h-4 w-16" />
-                      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {events.map((event) => (
+            <Card key={event.id} className="p-5 bg-card border-border">
+              <div className="flex gap-4">
+                {/* Event Icon */}
+                <div className="event-icon flex-shrink-0">
+                  <Calendar className="w-5 h-5" />
+                </div>
+
+                {/* Event Details */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-medium text-foreground">{event.title}</h3>
+                      <Badge
+                        variant="secondary"
+                        className={
+                          event.status === "upcoming"
+                            ? "mt-1.5 bg-success/15 text-success border-0 text-xs font-medium"
+                            : event.status === "past"
+                              ? "mt-1.5 bg-muted text-muted-foreground border-0 text-xs font-medium"
+                              : "mt-1.5 bg-destructive/15 text-destructive border-0 text-xs font-medium"
+                        }
+                      >
+                        {event.status}
+                      </Badge>
                     </div>
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-4 w-28" />
-                      <Skeleton className="h-4 w-36" />
-                      <Skeleton className="h-4 w-24" />
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="w-4 h-4" />
+                      <span>{formatDate(event.event_date)}</span>
                     </div>
-                    <div className="flex gap-2">
-                      <Skeleton className="h-9 flex-1" />
-                      <Skeleton className="h-9 w-20" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="w-4 h-4" />
+                      <span>{formatTime(event.event_time)}</span>
                     </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="w-4 h-4" />
+                      <span>{event.location || "TBD"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Users className="w-4 h-4" />
+                      <span>{event.attendees} attendees</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-1.5 h-9 text-muted-foreground hover:text-foreground"
+                      onClick={() => handleEditEvent(event)}
+                      disabled={updateEventMutation.isPending}
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="gap-1.5 h-9"
+                      onClick={() => handleDelete(event)}
+                      disabled={deleteEventMutation.isPending}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {events.map((event) => (
-              <Card key={event.id} className="p-5 bg-card border-border">
-                <div className="flex gap-4">
-                  {/* Event Icon */}
-                  <div className="event-icon flex-shrink-0">
-                    <Calendar className="w-5 h-5" />
-                  </div>
-
-                  {/* Event Details */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="font-medium text-foreground">{event.title}</h3>
-                        <Badge
-                          variant="secondary"
-                          className={
-                            event.status === "upcoming"
-                              ? "mt-1.5 bg-success/15 text-success border-0 text-xs font-medium"
-                              : event.status === "past"
-                                ? "mt-1.5 bg-muted text-muted-foreground border-0 text-xs font-medium"
-                                : "mt-1.5 bg-destructive/15 text-destructive border-0 text-xs font-medium"
-                          }
-                        >
-                          {event.status}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        <span>{formatDate(event.event_date)}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4" />
-                        <span>{formatTime(event.event_time)}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="w-4 h-4" />
-                        <span>{event.location || "TBD"}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="w-4 h-4" />
-                        <span>{event.attendees} attendees</span>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 gap-1.5 h-9 text-muted-foreground hover:text-foreground"
-                        onClick={() => handleEditEvent(event)}
-                        disabled={updateEventMutation.isPending}
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="gap-1.5 h-9"
-                        onClick={() => handleDelete(event)}
-                        disabled={deleteEventMutation.isPending}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-
+              </div>
+            </Card>
+          ))}
+        </div>
         {/* Empty State */}
         {/* {!isLoading && events.length === 0 && (
           <div className="text-center py-12">
