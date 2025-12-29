@@ -22,7 +22,7 @@ model Member {
 }
 
 model Event {
-  id               Int       @id @default(autoincrement())
+  id          String       @id @default(uuid()) @db.Uuid
   title            String
   description      String?
   event_date       DateTime  @map("event_date")
@@ -40,5 +40,20 @@ model Event {
   created_by       Int?      @map("created_by")
   updated_by       Int?      @map("updated_by")
 
+  images      EventImage[]
+
   @@map("events")
+}
+
+model EventImage {
+  id         String   @id @default(uuid()) @db.Uuid
+  eventId    String   @db.Uuid
+  year       Int
+  imagePath  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_images")
 }

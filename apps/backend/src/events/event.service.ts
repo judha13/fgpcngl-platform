@@ -5,75 +5,66 @@ import { UpdateEventDto } from './dto/update-event.dto';
 
 @Injectable()
 export class EventService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  async getAllEvents() {
+  getAllEvents() {
     return this.prisma.event.findMany({
+      where: { deleted_at: null },
       orderBy: { event_date: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        event_date: true,
-        event_time: true,
-        location: true,
-        status: true,
-        attendees: true,
-        created_at: true,
-      },
+      include: { images: true },
     });
   }
 
-  async createEvent(dto: CreateEventDto) {
+  createEvent(dto: CreateEventDto) {
     return this.prisma.event.create({
       data: {
-        title: dto.title,
-        description: dto.description,
+        ...dto,
         event_date: new Date(dto.event_date),
-        event_time: dto.event_time,
-        location: dto.location,
-        status: 'upcoming',
-        attendees: 0,
+        event_time: dto.event_time
+          ? new Date(`${dto.event_date}T${dto.event_time}`)
+          : null,
+        status: dto.status ?? 'ACTIVE',
+        attendees: dto.attendees ?? 0,
       },
     });
   }
 
-  async getEventById(id: number) {
-    const event = await this.prisma.event.findUnique({
-      where: { id },
+  async getEventById(id: string) {
+    const event = await this.prisma.event.findFirst({
+      where: { id, deleted_at: null },
+      include: { images: true },
     });
 
-    if (!event) {
-      throw new NotFoundException('Event not found');
-    }
-
+    if (!event) throw new NotFoundException('Event not found');
     return event;
   }
 
-  async updateEvent(id: number, dto: UpdateEventDto) {
+  async updateEvent(id: string, dto: UpdateEventDto) {
     await this.getEventById(id);
 
     return this.prisma.event.update({
       where: { id },
       data: {
-        title: dto.title,
-        description: dto.description,
-        event_date: dto.event_date
-          ? new Date(dto.event_date)
-          : undefined,
-        event_time: dto.event_time,
-        location: dto.location,
-        status: dto.status,
-        attendees: dto.attendees,
+        ...dto,
+        event_date: dto.event_date && new Date(dto.event_date),
+        event_time:
+          dto.event_date && dto.event_time
+            ? new Date(`${dto.event_date}T${dto.event_time}`)
+            : undefined,
+        updated_by: dto.created_by,
       },
     });
   }
 
-  async deleteEvent(id: number) {
+  async deleteEvent(id: string, updated_by?: number) {
     await this.getEventById(id);
 
-    return this.prisma.event.delete({
+    return this.prisma.event.update({
       where: { id },
+      data: {
+        deleted_at: new Date(),
+        updated_by,
+      },
     });
   }
 }
