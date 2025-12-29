@@ -54,14 +54,30 @@ export default function Events() {
     });
   };
 
-  const handleAddEvent = async () => {
+  const handleSaveEvent = async () => {
     if (!eventFormData.title || !eventFormData.event_date) {
       toast.error("Please fill in required fields");
       return;
     }
 
     try {
-      await createEventMutation.mutateAsync(eventFormData);
+      if (editingEvent) {
+        await updateEventMutation.mutateAsync({
+          id: editingEvent.id,
+          data: {
+            ...eventFormData,
+            status: editingEvent.status,
+            attendees: editingEvent.attendees,
+          },
+        });
+        toast.success("Event updated successfully");
+      } else {
+        await createEventMutation.mutateAsync(eventFormData);
+        toast.success("Event created successfully");
+      }
+
+      setIsDialogOpen(false);
+      setEditingEvent(null);
       setEventFormData({
         title: "",
         description: "",
@@ -69,52 +85,35 @@ export default function Events() {
         event_time: "",
         location: "",
       });
-      setIsDialogOpen(false);
-    } catch (error) {
-      // Error is handled by the mutation
+    } catch {
+      // handled by mutation
     }
   };
+
 
   const handleEditEvent = (event: Event) => {
     setEditingEvent(event);
+    console.log("event", event);
+
+    const dateOnly = event.event_date
+      ? new Date(event.event_date).toISOString().split("T")[0]
+      : "";
+
+    const timeOnly = event.event_time
+      ? new Date(event.event_time).toISOString().slice(11, 16)
+      : "";
+
     setEventFormData({
       title: event.title,
       description: event.description || "",
-      event_date: event.event_date,
-      event_time: event.event_time || "",
+      event_date: dateOnly,   // YYYY-MM-DD
+      event_time: timeOnly,   // HH:mm
       location: event.location || "",
     });
+
     setIsDialogOpen(true);
   };
 
-  const handleUpdateEvent = async () => {
-    if (!editingEvent || !eventFormData.title || !eventFormData.event_date) {
-      toast.error("Please fill in required fields");
-      return;
-    }
-
-    try {
-      await updateEventMutation.mutateAsync({
-        id: editingEvent.id,
-        data: {
-          ...eventFormData,
-          status: editingEvent.status,
-          attendees: editingEvent.attendees,
-        },
-      });
-      setEventFormData({
-        title: "",
-        description: "",
-        event_date: "",
-        event_time: "",
-        location: "",
-      });
-      setEditingEvent(null);
-      setIsDialogOpen(false);
-    } catch (error) {
-      // Error is handled by the mutation
-    }
-  };
 
   const handleDelete = async (event: Event) => {
     try {
@@ -169,12 +168,22 @@ export default function Events() {
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => {
+                  setEditingEvent(null);
+                  setEventFormData({
+                    title: "",
+                    description: "",
+                    event_date: "",
+                    event_time: "",
+                    location: "",
+                  });
+                }}>
                 <Plus className="w-4 h-4" />
                 Create Event
               </Button>
             </DialogTrigger>
-            {/* <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>
                   {editingEvent ? "Edit Event" : "Create New Event"}
@@ -229,8 +238,8 @@ export default function Events() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    onClick={editingEvent ? handleUpdateEvent : handleAddEvent} 
+                  <Button
+                    onClick={handleSaveEvent}
                     className="flex-1"
                     disabled={createEventMutation.isPending || updateEventMutation.isPending}
                   >
@@ -247,7 +256,7 @@ export default function Events() {
                   </Button>
                 </div>
               </div>
-            </DialogContent> */}
+            </DialogContent>
           </Dialog>
         </div>
 
@@ -358,61 +367,79 @@ export default function Events() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
-                <tr className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 text-sm text-foreground">aaa</td>
-                  <td className="px-4 py-3 text-sm font-medium text-primary">bbb</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ccc</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ddd</td>
-                  <td className="px-4 py-3 text-sm text-foreground">eee</td>
-                  <td className="px-4 py-3">fff</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">ggg</td>
-                  <td className="px-4 py-3">hhh</td>
-                </tr>
+                {events.map((event, index) => (
+                  <tr
+                    key={event.id}
+                    className="hover:bg-muted/30 transition-colors"
+                  >
+                    {/* Sl No */}
+                    <td className="px-4 py-3 text-sm text-foreground">
+                      {index + 1}
+                    </td>
 
-                <tr className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 text-sm text-foreground">aaa</td>
-                  <td className="px-4 py-3 text-sm font-medium text-primary">bbb</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ccc</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ddd</td>
-                  <td className="px-4 py-3 text-sm text-foreground">eee</td>
-                  <td className="px-4 py-3">fff</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">ggg</td>
-                  <td className="px-4 py-3">hhh</td>
-                </tr>
+                    {/* Title */}
+                    <td className="px-4 py-3 text-sm font-medium text-primary">
+                      {event.title}
+                    </td>
 
-                <tr className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 text-sm text-foreground">aaa</td>
-                  <td className="px-4 py-3 text-sm font-medium text-primary">bbb</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ccc</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ddd</td>
-                  <td className="px-4 py-3 text-sm text-foreground">eee</td>
-                  <td className="px-4 py-3">fff</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">ggg</td>
-                  <td className="px-4 py-3">hhh</td>
-                </tr>
+                    {/* Description */}
+                    <td className="px-4 py-3 text-sm text-muted-foreground max-w-[200px] truncate">
+                      {event.description || "—"}
+                    </td>
 
-                <tr className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 text-sm text-foreground">aaa</td>
-                  <td className="px-4 py-3 text-sm font-medium text-primary">bbb</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ccc</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ddd</td>
-                  <td className="px-4 py-3 text-sm text-foreground">eee</td>
-                  <td className="px-4 py-3">fff</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">ggg</td>
-                  <td className="px-4 py-3">hhh</td>
-                </tr>
+                    {/* Date */}
+                    <td className="px-4 py-3 text-sm text-foreground">
+                      {formatDate(event.event_date)}
+                    </td>
 
-                <tr className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 text-sm text-foreground">aaa</td>
-                  <td className="px-4 py-3 text-sm font-medium text-primary">bbb</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ccc</td>
-                  <td className="px-4 py-3 text-sm text-foreground">ddd</td>
-                  <td className="px-4 py-3 text-sm text-foreground">eee</td>
-                  <td className="px-4 py-3">fff</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">ggg</td>
-                  <td className="px-4 py-3">hhh</td>
-                </tr>
+                    {/* Time */}
+                    <td className="px-4 py-3 text-sm text-foreground">
+                      {event.event_time ? formatTime(event.event_time) : "TBD"}
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-4 py-3">
+                      <Badge
+                        variant="secondary"
+                        className={
+                          event.status === "upcoming"
+                            ? "bg-success/15 text-success border-0"
+                            : event.status === "past"
+                              ? "bg-muted text-muted-foreground border-0"
+                              : "bg-destructive/15 text-destructive border-0"
+                        }
+                      >
+                        {event.status}
+                      </Badge>
+                    </td>
+
+                    {/* Created By (placeholder for now) */}
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      Admin
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-4 py-3 flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditEvent(event)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(event)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
+
             </table>
           </div>
         </div>
