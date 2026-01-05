@@ -3,6 +3,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { EventModule } from './events/event.module';
 import { MembersModule } from './members/members.module';
 import { EventImageModule } from './eventImage/event-image.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
     imports: [
@@ -10,6 +12,8 @@ import { EventImageModule } from './eventImage/event-image.module';
         EventModule,
         MembersModule,
         EventImageModule,
+        AuthModule,
+        UsersModule,
     ],
 })
 export class AppModule { }
