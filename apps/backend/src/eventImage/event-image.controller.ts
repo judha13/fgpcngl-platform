@@ -34,14 +34,14 @@ export class EventImageController {
 
   @Get('event/:eventId')
   @ApiOperation({ summary: 'Get event images by event id' })
-  async findByEvent(@Param('eventId') eventId: string) {
+  async findByEvent(@Param('eventId') eventId: number) {
     const data = await this.service.findByEvent(eventId);
     return { success: true, count: data.length, data };
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get event image by id' })
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: number) {
     const data = await this.service.findOne(id);
     return { success: true, data };
   }
@@ -49,7 +49,7 @@ export class EventImageController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update event image by id' })
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() dto: UpdateEventImageDto,
   ) {
     const data = await this.service.update(id, dto);
@@ -58,7 +58,7 @@ export class EventImageController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete event image by id' })
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: number) {
     await this.service.remove(id);
     return { success: true, message: 'Event image deleted' };
   }

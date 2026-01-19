@@ -29,7 +29,7 @@ export class EventService {
     });
   }
 
-  async getEventById(id: string) {
+  async getEventById(id: number) {
     const event = await this.prisma.event.findFirst({
       where: { id, deleted_at: null },
       include: { images: true },
@@ -39,7 +39,7 @@ export class EventService {
     return event;
   }
 
-  async updateEvent(id: string, dto: UpdateEventDto) {
+  async updateEvent(id: number, dto: UpdateEventDto) {
     await this.getEventById(id);
 
     return this.prisma.event.update({
@@ -56,7 +56,7 @@ export class EventService {
     });
   }
 
-  async deleteEvent(id: string, updated_by?: number) {
+  async deleteEvent(id: number, updated_by?: number) {
     await this.getEventById(id);
 
     return this.prisma.event.update({

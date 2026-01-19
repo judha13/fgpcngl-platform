@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateEventImageDto extends PartialType(CreateEventImageDto) {
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
-  eventId?: string;
+  eventId?: number;
 
   @ApiProperty({ example: 2023 })
   year?: number;

@@ -40,7 +40,7 @@ export class MembersController {
     }
 
     @Get(':id')
-    async getById(@Param('id', ParseIntPipe) id: number) {
+    async getById(@Param('id', ParseIntPipe) id: string) {
         const data = await this.membersService.getMemberById(id);
         return {
             success: true,
@@ -50,7 +50,7 @@ export class MembersController {
 
     @Put(':id')
     async update(
-        @Param('id', ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: string,
         @Body() dto: UpdateMemberDto,
     ) {
         const data = await this.membersService.updateMember(id, dto);
@@ -62,7 +62,7 @@ export class MembersController {
     }
 
     @Delete(':id')
-    async delete(@Param('id', ParseIntPipe) id: number) {
+    async delete(@Param('id', ParseIntPipe) id: string) {
         await this.membersService.deleteMember(id);
         return {
             success: true,

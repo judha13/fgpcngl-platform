@@ -127,7 +127,7 @@ export class UsersService {
                 ? BigInt(dto.phoneNumber)
                 : undefined,
             hash,
-            role: dto.role || UserRolesEnum.OFFICE,
+            role: dto.role || UserRolesEnum.MODERATOR,
         };
 
         return this.prisma.users.create({ data });

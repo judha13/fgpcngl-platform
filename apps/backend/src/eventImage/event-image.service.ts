@@ -27,14 +27,14 @@ export class EventImageService {
     });
   }
 
-  async findByEvent(eventId: string) {
+  async findByEvent(eventId: number) {
     return this.prisma.eventImage.findMany({
       where: { eventId },
       orderBy: { year: 'desc' },
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const image = await this.prisma.eventImage.findUnique({
       where: { id },
     });
@@ -46,7 +46,7 @@ export class EventImageService {
     return image;
   }
 
-  async update(id: string, dto: UpdateEventImageDto) {
+  async update(id: number, dto: UpdateEventImageDto) {
     await this.findOne(id);
 
     return this.prisma.eventImage.update({
@@ -55,7 +55,7 @@ export class EventImageService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     await this.findOne(id);
 
     return this.prisma.eventImage.delete({

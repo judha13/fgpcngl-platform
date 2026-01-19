@@ -43,7 +43,7 @@ export class MembersService {
         }
     }
 
-    async getMemberById(id: number) {
+    async getMemberById(id: string) {
         const member = await this.prisma.member.findUnique({
             where: { id },
         });
@@ -54,7 +54,7 @@ export class MembersService {
         return member;
     }
 
-    async updateMember(id: number, dto: UpdateMemberDto) {
+    async updateMember(id: string, dto: UpdateMemberDto) {
         await this.getMemberById(id); // Ensure exists
 
         return this.prisma.member.update({
@@ -69,7 +69,7 @@ export class MembersService {
         });
     }
 
-    async deleteMember(id: number) {
+    async deleteMember(id: string) {
         await this.getMemberById(id); // Ensure exists
 
         return this.prisma.member.delete({

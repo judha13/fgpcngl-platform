@@ -34,13 +34,13 @@ export class EventController {
     }
 
     @Get(':id')
-    async getById(@Param('id') id: string) {
+    async getById(@Param('id') id: number) {
         return { success: true, data: await this.service.getEventById(id) };
     }
 
     @Put(':id')
     async update(
-        @Param('id') id: string,
+        @Param('id') id: number,
         @Body() dto: UpdateEventDto,
     ) {
         return {
@@ -51,7 +51,7 @@ export class EventController {
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: string) {
+    async delete(@Param('id') id: number) {
         await this.service.deleteEvent(id);
         return { success: true, message: 'Event deleted successfully' };
     }

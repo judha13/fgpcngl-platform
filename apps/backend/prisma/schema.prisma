@@ -3,13 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("DATABASE_SHADOW_URL") 
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("DATABASE_SHADOW_URL")
 }
 
 model Member {
-  id         String      @id @default(uuid()) @db.Uuid
   name       String
   email      String   @unique
   phone      String?
@@ -18,50 +17,44 @@ model Member {
   status     String?  @default("active")
   created_at DateTime @default(now()) @map("created_at")
   updated_at DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(uuid()) @db.Uuid
 
   @@map("members")
 }
 
 model Event {
-  id               Int    @id @default(autoincrement())
+  id               Int          @id @default(autoincrement())
   title            String
   description      String?
-  event_date       DateTime  @map("event_date")
-  event_time       DateTime? @map("event_time")
+  event_date       DateTime     @map("event_date")
   location         String?
+  status           String?      @default("ACTIVE")
+  attendees        Int?         @default(0)
+  created_at       DateTime     @default(now()) @map("created_at")
+  updated_at       DateTime     @updatedAt @map("updated_at")
+  cover_image      String?
+  created_by       Int?         @map("created_by")
+  deleted_at       DateTime?    @map("deleted_at")
   live_stream_url  String?
   registration_url String?
-  cover_image      String?
   thumbnail_image  String?
-  status           String?   @default("ACTIVE")
-  attendees        Int?      @default(0)
-  created_at       DateTime  @default(now()) @map("created_at")
-  updated_at       DateTime  @updatedAt @map("updated_at")
-  deleted_at       DateTime? @map("deleted_at")
-  created_by       Int?      @map("created_by")
-  updated_by       Int?      @map("updated_by")
-
-  images EventImage[]
+  updated_by       Int?         @map("updated_by")
+  event_time       DateTime?    @map("event_time")
+  images           EventImage[]
 
   @@map("events")
 }
 
 model EventImage {
-  id        Int   @id @default(autoincrement())
-  eventId   Int   
+  id        Int      @id @default(autoincrement())
+  eventId   Int
   year      Int
   imagePath String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@map("event_images")
-}
-
-enum UserRolesEnum {
-  ADMIN
-  MODERATOR
 }
 
 model Users {
@@ -71,10 +64,15 @@ model Users {
   hash           String?
   role           UserRolesEnum?
   activeToken    String?
-  tokenExpiresAt DateTime?      @map("token_expires_at")
   created_at     DateTime       @default(now()) @map("created_at")
   updated_at     DateTime       @updatedAt @map("updated_at")
   created_by     String?        @map("created_by")
+  tokenExpiresAt DateTime?      @map("token_expires_at")
 
   @@map("users")
+}
+
+enum UserRolesEnum {
+  ADMIN
+  MODERATOR
 }
