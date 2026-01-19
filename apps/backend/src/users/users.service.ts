@@ -8,7 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
     async register(dto: CreateUserDto) {
         try {
@@ -146,5 +146,45 @@ export class UsersService {
             ...rest,
             phoneNumber: rest.phoneNumber?.toString(),
         };
+    }
+
+    // Token management methods
+    async updateUserToken(userId: string, token: string, expiresAt: Date): Promise<void> {
+        await this.prisma.users.update({
+            where: { userId },
+            data: {
+                activeToken: token,
+                tokenExpiresAt: expiresAt,
+            },
+        });
+    }
+
+    async clearUserToken(userId: string): Promise<void> {
+        await this.prisma.users.update({
+            where: { userId },
+            data: {
+                activeToken: null,
+                tokenExpiresAt: null,
+            },
+        });
+    }
+
+    async getUserByToken(token: string): Promise<Users | null> {
+        return this.prisma.users.findFirst({
+            where: { activeToken: token },
+        });
+    }
+
+    async isTokenValid(userId: string, token: string): Promise<boolean> {
+        const user = await this.findById(userId);
+        if (!user || !user.activeToken || !user.tokenExpiresAt) {
+            return false;
+        }
+
+        // Check if token matches and is not expired
+        const isTokenMatch = user.activeToken === token;
+        const isNotExpired = new Date() < user.tokenExpiresAt;
+
+        return isTokenMatch && isNotExpired;
     }
 }

@@ -5,10 +5,11 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("DATABASE_SHADOW_URL") 
 }
 
 model Member {
-  id         Int      @id @default(autoincrement())
+  id         String      @id @default(uuid()) @db.Uuid
   name       String
   email      String   @unique
   phone      String?
@@ -22,7 +23,7 @@ model Member {
 }
 
 model Event {
-  id               String    @id @default(uuid()) @db.Uuid
+  id               Int    @id @default(autoincrement())
   title            String
   description      String?
   event_date       DateTime  @map("event_date")
@@ -46,8 +47,8 @@ model Event {
 }
 
 model EventImage {
-  id        String   @id @default(uuid()) @db.Uuid
-  eventId   String   @db.Uuid
+  id        Int   @id @default(autoincrement())
+  eventId   Int   
   year      Int
   imagePath String
   createdAt DateTime @default(now())
@@ -60,20 +61,20 @@ model EventImage {
 
 enum UserRolesEnum {
   ADMIN
-  MEDIA
-  OFFICE
+  MODERATOR
 }
 
 model Users {
-  userId      String         @id @default(uuid()) @db.Uuid
-  email       String?        @unique
-  phoneNumber BigInt?        @unique
-  hash        String?
-  role        UserRolesEnum?
-  activeToken String?
-  created_at  DateTime       @default(now()) @map("created_at")
-  updated_at  DateTime       @updatedAt @map("updated_at")
-  created_by  String?        @map("created_by")
+  userId         String         @id @default(uuid()) @db.Uuid
+  email          String?        @unique
+  phoneNumber    BigInt?        @unique
+  hash           String?
+  role           UserRolesEnum?
+  activeToken    String?
+  tokenExpiresAt DateTime?      @map("token_expires_at")
+  created_at     DateTime       @default(now()) @map("created_at")
+  updated_at     DateTime       @updatedAt @map("updated_at")
+  created_by     String?        @map("created_by")
 
   @@map("users")
 }

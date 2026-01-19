@@ -3,6 +3,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { AuthResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -11,21 +12,55 @@ export class AuthService {
         private jwtService: JwtService,
     ) { }
 
-    async login(dto: LoginDto) {
+    async login(dto: LoginDto): Promise<AuthResponseDto> {
         const user = await this.usersService.findByEmail(dto.email);
 
         if (!user || !user.hash || !(await bcrypt.compare(dto.password, user.hash))) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
+        // Generate new token
         const payload = { sub: user.userId, email: user.email, role: user.role };
+        const access_token = this.jwtService.sign(payload);
+
+        // Calculate expiration time (4 hours = 14400 seconds)
+        const expiresInSeconds = 4 * 60 * 60; // 14400 seconds
+        const expiresAt = new Date(Date.now() + expiresInSeconds * 1000);
+
+        // Delete old token and save new token to database
+        await this.usersService.updateUserToken(user.userId, access_token, expiresAt);
+
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token,
+            expires_in: expiresInSeconds,
+            expires_at: expiresAt,
             user: {
                 id: user.userId,
-                email: user.email,
-                role: user.role,
+                email: user.email || '',
+                role: user.role || '',
             },
         };
     }
+
+    async logout(userId: string): Promise<{ message: string }> {
+        await this.usersService.clearUserToken(userId);
+        return { message: 'Logged out successfully' };
+    }
+
+    async validateToken(userId: string, token: string): Promise<{ valid: boolean; message: string }> {
+        const isValid = await this.usersService.isTokenValid(userId, token);
+
+        if (!isValid) {
+            return {
+                valid: false,
+                message: 'Token is expired, login again',
+            };
+        }
+
+        return {
+            valid: true,
+            message: 'Token is valid',
+        };
+    }
 }
+

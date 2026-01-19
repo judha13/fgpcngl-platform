@@ -17,14 +17,8 @@ async function main() {
             email: 'fgpcnglmedia@gmail.com',
             phoneNumber: BigInt(9363920889),
             password: 'fgpcnglmedia@93889',
-            role: UserRolesEnum.MEDIA,
-        },
-        {
-            email: 'fgpcngloffice@gmail.com',
-            phoneNumber: BigInt(9488484745),
-            password: 'fgpcngloffice@94745',
-            role: UserRolesEnum.OFFICE,
-        },
+            role: UserRolesEnum.MODERATOR,
+        }
     ];
 
     const users = await prisma.users.createMany({
