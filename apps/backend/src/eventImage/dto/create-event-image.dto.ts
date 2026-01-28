@@ -1,17 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 
 export class CreateEventImageDto {
-  @IsUUID()
-  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiProperty({ example: 1 })
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   eventId: number;
 
-  @IsInt()
   @ApiProperty({ example: 2023 })
+  @Type(() => Number)
+  @IsInt()
+  @Min(1900)
   year: number;
 
+  @ApiProperty({ example: 'image.jpg' })
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ example: 'image.jpg' })
   imagePath: string;
 }

@@ -21,37 +21,35 @@ model Member {
 
   @@map("members")
 }
-
 model Event {
-  id               Int          @id @default(autoincrement())
-  title            String
-  description      String?
-  event_date       DateTime     @map("event_date")
-  location         String?
-  status           String?      @default("ACTIVE")
-  attendees        Int?         @default(0)
-  created_at       DateTime     @default(now()) @map("created_at")
-  updated_at       DateTime     @updatedAt @map("updated_at")
-  cover_image      String?
-  created_by       Int?         @map("created_by")
-  deleted_at       DateTime?    @map("deleted_at")
-  live_stream_url  String?
-  registration_url String?
-  thumbnail_image  String?
-  updated_by       Int?         @map("updated_by")
-  event_time       DateTime?    @map("event_time")
-  images           EventImage[]
+  id              Int          @id @default(autoincrement())
+  title           String
+  description     String?
+  eventDate       DateTime     @map("event_date")
+  eventTime       DateTime?    @map("event_time")
+  location        String?
+  status          String?      @default("ACTIVE")
+  attendees       Int?         @default(0)
+  created_at      DateTime     @default(now()) @map("created_at")
+  updated_at      DateTime     @updatedAt @map("updated_at")
+  coverImage      String?      @map("cover_image")
+  created_by      Int?         @map("created_by")
+  liveStreamUrl   String?      @map("live_stream_url")
+  registrationUrl String?      @map("registration_url")
+  thumbnailImage  String?      @map("thumbnail_image")
+  updated_by      Int?         @map("updated_by")
+  deleted_at      DateTime?    @map("deleted_at")
+  images          EventImage[]
 
   @@map("events")
 }
-
 model EventImage {
   id        Int      @id @default(autoincrement())
   eventId   Int
   year      Int
   imagePath String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  created_at DateTime @default(now()) @map("created_at")
+  updated_at DateTime @updatedAt @map("updated_at")
   event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@map("event_images")
@@ -75,4 +73,33 @@ model Users {
 enum UserRolesEnum {
   ADMIN
   MODERATOR
+}
+model GalleryFolder {
+  id            Int            @id @default(autoincrement())
+  name          String
+  slug          String         @unique
+  description   String?
+  created_at    DateTime       @default(now()) @map("created_at")
+  updated_at    DateTime       @updatedAt @map("updated_at")
+  imageCount    Int            @default(0) @map("image_count")
+  coverImageUrl String?        @map("cover_image_url")
+  images        GalleryImage[]
+
+  @@map("gallery_folders")
+}
+
+model GalleryImage {
+  id          Int           @id @default(autoincrement())
+  folderId    Int           @map("folder_id")
+  folder      GalleryFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  filename    String
+  storagePath String        @map("storage_path")
+  url         String
+  size        Int
+  mimeType    String        @map("mime_type")
+  width       Int?
+  height      Int?
+  uploaded_at DateTime      @default(now()) @map("uploaded_at")
+
+  @@map("gallery_images")
 }

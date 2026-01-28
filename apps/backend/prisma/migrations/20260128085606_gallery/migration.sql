@@ -40,11 +40,47 @@ CREATE TABLE "event_images" (
     "eventId" INTEGER NOT NULL,
     "year" INTEGER NOT NULL,
     "imagePath" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "event_images_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "gallery_folders" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "description" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "image_count" INTEGER NOT NULL DEFAULT 0,
+    "cover_image_url" TEXT,
+
+    CONSTRAINT "gallery_folders_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "gallery_images" (
+    "id" SERIAL NOT NULL,
+    "folder_id" INTEGER NOT NULL,
+    "filename" TEXT NOT NULL,
+    "storage_path" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "size" INTEGER NOT NULL,
+    "mime_type" TEXT NOT NULL,
+    "width" INTEGER,
+    "height" INTEGER,
+    "uploaded_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "gallery_images_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "gallery_folders_slug_key" ON "gallery_folders"("slug");
+
 -- AddForeignKey
 ALTER TABLE "event_images" ADD CONSTRAINT "event_images_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "events"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "gallery_images" ADD CONSTRAINT "gallery_images_folder_id_fkey" FOREIGN KEY ("folder_id") REFERENCES "gallery_folders"("id") ON DELETE CASCADE ON UPDATE CASCADE;

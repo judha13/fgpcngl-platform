@@ -5,17 +5,30 @@ import { UpdateEventImageDto } from './dto/update-event-image.dto';
 
 @Injectable()
 export class EventImageService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(dto: CreateEventImageDto) {
+    const eventExists = await this.prisma.event.findUnique({
+      where: { id: dto.eventId },
+      select: { id: true },
+    });
+
+    if (!eventExists) {
+      throw new NotFoundException(`Event not found for id=${dto.eventId}`);
+    }
+
     return this.prisma.eventImage.create({
-      data: dto,
+      data: {
+        year: dto.year,
+        imagePath: dto.imagePath,
+        event: { connect: { id: dto.eventId } },
+      },
     });
   }
 
   async findAll() {
     return this.prisma.eventImage.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { created_at: 'desc' },
       include: {
         event: {
           select: {

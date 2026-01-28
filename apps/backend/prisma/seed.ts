@@ -4,7 +4,6 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log('Starting database seeding...');
 
     const usersData = [
         {
@@ -21,21 +20,17 @@ async function main() {
         }
     ];
 
-    const users = await prisma.users.createMany({
+    await prisma.users.createMany({
         data: await Promise.all(
             usersData.map(async (user) => ({
                 email: user.email,
                 phoneNumber: user.phoneNumber,
                 hash: await bcrypt.hash(user.password, 10),
                 role: user.role,
-                created_by: null,
             }))
         ),
         skipDuplicates: true,
     });
-
-    console.log(`Created ${users.count} users`);
-    console.log('Database seeded successfully!');
 }
 
 main()

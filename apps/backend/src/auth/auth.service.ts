@@ -19,16 +19,24 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Generate new token
-        const payload = { sub: user.userId, email: user.email, role: user.role };
-        const access_token = this.jwtService.sign(payload);
+        const payload = {
+            sub: user.userId,
+            email: user.email,
+            role: user.role,
+        };
+        const expiresInSeconds = 24 * 60 * 60;
 
-        // Calculate expiration time (4 hours = 14400 seconds)
-        const expiresInSeconds = 4 * 60 * 60; // 14400 seconds
+        const access_token = this.jwtService.sign(payload, {
+            expiresIn: expiresInSeconds,
+        });
+
         const expiresAt = new Date(Date.now() + expiresInSeconds * 1000);
 
-        // Delete old token and save new token to database
-        await this.usersService.updateUserToken(user.userId, access_token, expiresAt);
+        await this.usersService.updateUserToken(
+            user.userId,
+            access_token,
+            expiresAt,
+        );
 
         return {
             access_token,
