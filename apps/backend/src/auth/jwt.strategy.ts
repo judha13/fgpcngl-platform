@@ -1,0 +1,43 @@
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+    constructor(private usersService: UsersService) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ignoreExpiration: false,
+            secretOrKey: process.env.JWT_SECRET || 'secretKey',
+            passReqToCallback: true, // Pass request to validate method
+        });
+    }
+
+    async validate(request: any, payload: any) {
+        const userId = payload.sub;
+
+        // Extract token from Authorization header
+        const authHeader = request.headers.authorization;
+        const token = authHeader?.replace('Bearer ', '');
+
+        if (!token) {
+            throw new UnauthorizedException('Token not found');
+        }
+
+        // Verify user exists
+        const user = await this.usersService.findById(userId);
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+
+        // Validate token against database
+        const isValid = await this.usersService.isTokenValid(userId, token);
+
+        if (!isValid) {
+            throw new UnauthorizedException('Token is expired, login again');
+        }
+
+        return { userId: payload.sub, email: payload.email, role: payload.role };
+    }
+}

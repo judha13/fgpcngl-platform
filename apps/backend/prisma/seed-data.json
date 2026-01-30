@@ -1,0 +1,16 @@
+{
+    "users": [
+        {
+            "email": "fgpcngladmin@gmail.com",
+            "phoneNumber": "99446 70582",
+            "password": "fgpcngladmin@99582",
+            "role": "ADMIN"
+        },
+        {
+            "email": "fgpcnglmedia@gmail.com",
+            "phoneNumber": "9363920889",
+            "password": "fgpcnglmedia@93889",
+            "role": "MODERATOR"
+        }
+    ]
+}
