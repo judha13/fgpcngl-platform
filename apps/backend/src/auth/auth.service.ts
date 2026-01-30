@@ -30,7 +30,8 @@ export class AuthService {
             expiresIn: expiresInSeconds,
         });
 
-        const expiresAt = new Date(Date.now() + expiresInSeconds * 1000);
+        const decoded = this.jwtService.decode(access_token) as any;
+        const expiresAt = new Date(decoded.exp * 1000);
 
         await this.usersService.updateUserToken(
             user.userId,

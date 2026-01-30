@@ -177,14 +177,10 @@ export class UsersService {
 
     async isTokenValid(userId: string, token: string): Promise<boolean> {
         const user = await this.findById(userId);
-        if (!user || !user.activeToken || !user.tokenExpiresAt) {
+        if (!user || !user.activeToken) {
             return false;
         }
 
-        // Check if token matches and is not expired
-        const isTokenMatch = user.activeToken === token;
-        const isNotExpired = new Date() < user.tokenExpiresAt;
-
-        return isTokenMatch && isNotExpired;
+        return user.activeToken === token;
     }
 }
