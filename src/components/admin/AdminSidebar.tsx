@@ -23,7 +23,7 @@ const menuItems = [
   { icon: BookOpen, label: "Sermons", path: "/sermons" },
   { icon: Calendar, label: "Events", path: "/events" },
   { icon: Megaphone, label: "Announcements", path: "/announcements" },
-  { icon: Image, label: "Media Library", path: "/media" },
+  { icon: Image, label: "Media Gallery", path: "/media" },
   { icon: FileText, label: "Pages", path: "/pages" },
   { icon: Users, label: "Members", path: "/members" },
   { icon: BarChart3, label: "Analytics", path: "/analytics" },

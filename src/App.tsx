@@ -13,6 +13,7 @@ import Announcements from "./pages/Announcements";
 import Donations from "./pages/Donations";
 import Websites from "./pages/Websites";
 import Settings from "./pages/Settings";
+import MediaLibrary from "@/pages/MediaLibrary";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/announcements" element={<ProtectedRoute><Announcements /></ProtectedRoute>} />
             <Route path="/donations" element={<ProtectedRoute><Donations /></ProtectedRoute>} />
             <Route path="/websites" element={<ProtectedRoute><Websites /></ProtectedRoute>} />
+            <Route path="/media" element={<ProtectedRoute><MediaLibrary /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

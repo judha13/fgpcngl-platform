@@ -24,7 +24,7 @@ export class AuthService {
             email: user.email,
             role: user.role,
         };
-        const expiresInSeconds = 24 * 60 * 60;
+        const expiresInSeconds = 4 * 60 * 60; // 4 hours in seconds
 
         const access_token = this.jwtService.sign(payload, {
             expiresIn: expiresInSeconds,

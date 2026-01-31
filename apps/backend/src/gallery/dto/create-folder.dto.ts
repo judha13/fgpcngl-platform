@@ -24,4 +24,12 @@ export class CreateFolderDto {
     @IsOptional()
     @MaxLength(500)
     description?: string;
+
+    @ApiProperty({
+        description: 'Optional ID of the parent folder',
+        example: 1,
+        required: false,
+    })
+    @IsOptional()
+    parentId?: number;
 }

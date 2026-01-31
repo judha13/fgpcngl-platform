@@ -27,6 +27,19 @@ export class GalleryService {
             .replace(/^-+|-+$/g, '');
     }
 
+    // Recursively get the full folder path (slug path)
+    private async getFolderPath(folderId: number): Promise<string> {
+        const folder = await this.prisma.galleryFolder.findUnique({
+            where: { id: folderId },
+        });
+        if (!folder) return '';
+        if (folder.parentId) {
+            const parentPath = await this.getFolderPath(folder.parentId);
+            return `${parentPath}/${folder.slug}`;
+        }
+        return folder.slug;
+    }
+
     // Create a new gallery folder
     async createFolder(createFolderDto: CreateFolderDto) {
         const slug = this.generateSlug(createFolderDto.name);
@@ -47,26 +60,32 @@ export class GalleryService {
                 name: createFolderDto.name,
                 slug,
                 description: createFolderDto.description,
+                parentId: createFolderDto.parentId || null,
             },
         });
     }
 
-    // Get all folders with pagination
-    async getAllFolders(page: number = 1, limit: number = 20) {
+    // Get all folders with pagination and parent filtering
+    async getAllFolders(page: number = 1, limit: number = 20, parentId?: number) {
         const skip = (page - 1) * limit;
+        const where = parentId ? { parentId } : { parentId: null };
 
         const [folders, total] = await Promise.all([
             this.prisma.galleryFolder.findMany({
+                where,
                 skip,
                 take: limit,
-                orderBy: { created_at: 'desc' },
+                orderBy: { createdAt: 'desc' },
                 include: {
                     _count: {
-                        select: { images: true },
+                        select: { 
+                            images: true,
+                            children: true, 
+                        },
                     },
                 },
             }),
-            this.prisma.galleryFolder.count(),
+            this.prisma.galleryFolder.count({ where }),
         ]);
 
         return {
@@ -97,7 +116,7 @@ export class GalleryService {
                 where: { folderId: id },
                 skip,
                 take: limit,
-                orderBy: { uploaded_at: 'desc' },
+                orderBy: { createdAt: 'desc' },
             }),
             this.prisma.galleryImage.count({
                 where: { folderId: id },
@@ -128,7 +147,7 @@ export class GalleryService {
             throw new NotFoundException(`Folder with ID ${id} not found`);
         }
 
-        const updateData: any = { ...updateFolderDto };
+        const updateData: Record<string, unknown> = { ...updateFolderDto };
 
         // If name is being updated, regenerate slug
         if (updateFolderDto.name) {
@@ -173,7 +192,8 @@ export class GalleryService {
         }
 
         // Delete folder directory
-        await this.storageService.deleteFolder(folder.slug);
+        const folderPath = await this.getFolderPath(folder.id);
+        await this.storageService.deleteFolder(folderPath);
 
         // Delete from database (cascade will handle images)
         await this.prisma.galleryFolder.delete({
@@ -213,10 +233,13 @@ export class GalleryService {
                     console.warn('Failed to extract image metadata:', error);
                 }
 
+                // Get the full storage path for the folder
+                const folderPath = await this.getFolderPath(folder.id);
+
                 // Upload to storage
                 const { path, url } = await this.storageService.uploadFile(
                     file,
-                    folder.slug,
+                    folderPath,
                 );
 
                 // Save to database
@@ -250,9 +273,9 @@ export class GalleryService {
                 await this.prisma.galleryImage.delete({ where: { id: image.id } });
             }
 
-            // throw new InternalServerErrorException(
-            //     `Failed to upload images: ${error.message}`,
-            // );
+            throw new InternalServerErrorException(
+                `Failed to upload images: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            );
         }
     }
 
@@ -273,7 +296,7 @@ export class GalleryService {
                 where: { folderId },
                 skip,
                 take: limit,
-                orderBy: { uploaded_at: 'desc' },
+                orderBy: { createdAt: 'desc' },
             }),
             this.prisma.galleryImage.count({ where: { folderId } }),
         ]);
@@ -321,7 +344,7 @@ export class GalleryService {
 
         const firstImage = await this.prisma.galleryImage.findFirst({
             where: { folderId },
-            orderBy: { uploaded_at: 'asc' },
+            orderBy: { createdAt: 'asc' },
         });
 
         await this.prisma.galleryFolder.update({

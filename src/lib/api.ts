@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+export const BASE_URL = 'http://localhost:3001';
+
 const api = axios.create({
-  baseURL: 'https://fgpcngl-platform.onrender.com',
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

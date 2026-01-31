@@ -56,12 +56,6 @@ export default function Login() {
     }
   };
 
-  const fillDefaultCredentials = () => {
-    setEmail('admin@churchhub.com');
-    setPassword('admin123');
-    setError('');
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
       <Card className="w-full max-w-md shadow-lg border-border/50">
@@ -78,22 +72,6 @@ export default function Login() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Default Credentials Info */}
-          <Alert className="bg-info/5 border-info/20">
-            <AlertDescription className="text-sm">
-              <strong>Default Login:</strong><br />
-              Email: admin@churchhub.com<br />
-              Password: admin123
-              <Button
-                variant="link"
-                size="sm"
-                className="p-0 h-auto text-info hover:text-info/80 ml-2"
-                onClick={fillDefaultCredentials}
-              >
-                Use these credentials
-              </Button>
-            </AlertDescription>
-          </Alert>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">

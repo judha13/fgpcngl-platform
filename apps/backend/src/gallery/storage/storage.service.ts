@@ -64,7 +64,7 @@ export class StorageService {
         relativePath: string,
     ): Promise<StorageFile> {
         const fullPath = join(this.uploadPath, relativePath);
-        const directory = join(this.uploadPath, relativePath.split('/')[0]);
+        const directory = join(this.uploadPath, relativePath.substring(0, relativePath.lastIndexOf('/')));
 
         // Ensure directory exists
         await fs.mkdir(directory, { recursive: true });

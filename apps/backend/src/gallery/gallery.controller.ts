@@ -13,6 +13,7 @@ import {
     DefaultValuePipe,
     UseGuards,
 } from '@nestjs/common';
+import { IsOptional } from 'class-validator';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import {
     ApiTags,
@@ -62,8 +63,9 @@ export class GalleryController {
     async getAllFolders(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+        @Query('parentId', new ParseIntPipe({ optional: true })) parentId?: number,
     ) {
-        return this.galleryService.getAllFolders(page, limit);
+        return this.galleryService.getAllFolders(page, limit, parentId);
     }
 
     @Get('folders/:id')

@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider          = "postgresql"
   url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("DATABASE_SHADOW_URL")
 }
 
 model Member {
@@ -79,8 +78,11 @@ model GalleryFolder {
   name          String
   slug          String         @unique
   description   String?
-  created_at    DateTime       @default(now()) @map("created_at")
-  updated_at    DateTime       @updatedAt @map("updated_at")
+  parentId      Int?           @map("parent_id")
+  parent        GalleryFolder? @relation("FolderToFolder", fields: [parentId], references: [id], onDelete: Cascade)
+  children      GalleryFolder[] @relation("FolderToFolder")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
   imageCount    Int            @default(0) @map("image_count")
   coverImageUrl String?        @map("cover_image_url")
   images        GalleryImage[]
@@ -99,7 +101,7 @@ model GalleryImage {
   mimeType    String        @map("mime_type")
   width       Int?
   height      Int?
-  uploaded_at DateTime      @default(now()) @map("uploaded_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
 
   @@map("gallery_images")
 }
